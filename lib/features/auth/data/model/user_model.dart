@@ -3,41 +3,37 @@ import 'package:equatable/equatable.dart';
 class UserModel extends Equatable {
   const UserModel({
     required this.id,
-    required this.parentFirstName,
-    required this.parentLastName,
+    required this.parentName,
     required this.email,
-    this.role = 'parent',
+    required this.childName,
+    required this.childAge,
   });
 
   final String id;
-  final String parentFirstName;
-  final String parentLastName;
+  final String parentName;
   final String email;
-  final String role;
+  final String childName;
+  final int childAge;
 
-  // الاسم الكامل للعرض في الشاشات
-  String get fullName => '$parentFirstName $parentLastName'.trim();
-
-  // أسماء الحقول (keys) هنا لازم تطابق اللي الباك بيرجّعه
+  // أسماء الحقول (keys) لازم تطابق اللي الباك بيرجّعه
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'].toString(),
-      parentFirstName: json['parentFirstName'] as String? ?? '',
-      parentLastName: json['parentLastName'] as String? ?? '',
+      id: json['_id'].toString(),
+      parentName: json['parentName'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      role: json['role'] as String? ?? 'parent',
+      childName: json['childName'] as String? ?? '',
+      childAge: (json['childAge'] as num?)?.toInt() ?? 0,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'parentFirstName': parentFirstName,
-        'parentLastName': parentLastName,
+        '_id': id,
+        'parentName': parentName,
         'email': email,
-        'role': role,
+        'childName': childName,
+        'childAge': childAge,
       };
 
   @override
-  List<Object?> get props =>
-      [id, parentFirstName, parentLastName, email, role];
+  List<Object?> get props => [id, parentName, email, childName, childAge];
 }

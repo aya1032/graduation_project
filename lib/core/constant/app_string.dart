@@ -22,10 +22,13 @@ static const registerTitle = 'يلا نبدأ رحلتنا!';
 static const registerSubtitle = 'اعملي حساب وابدأي رحلة الأمان مع طفلك.';
 static const parentSectionTitle = 'بيانات ولي الأمر';
 static const childSectionTitle = 'بيانات الطفل الصغير';
-static const parentFirstNameLabel = 'الاسم الأول';
-static const parentFirstNameHint = 'اكتبي الاسم الأول';
-static const parentLastNameLabel = 'الاسم الأخير';
-static const parentLastNameHint = 'اكتبي الاسم الأخير';
+static const parentNameLabel = 'اسم ولي الأمر';
+static const parentNameHint = 'اكتبي اسمك بالكامل';
+static const childAgeLabel = 'عمر الطفل';
+static const childAgeHint = 'اختاري عمر طفلك لنقدّم له المحتوى المناسب';
+static const childAgeRequired = 'من فضلك اختاري عمر الطفل';
+static String yearsLabel(int age) => '$age سنوات';
+
 static const emailLabel = 'البريد الإلكتروني';
 static const passwordLabel = 'كلمة المرور';
 static const passwordCreateHint = 'اكتبي كلمة مرور قوية';

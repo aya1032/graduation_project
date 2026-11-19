@@ -5,7 +5,6 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/errors/failures.dart';
 
-
 import 'auth_repository.dart';
 
 class FakeAuthRepository implements AuthRepository {
@@ -23,18 +22,20 @@ class FakeAuthRepository implements AuthRepository {
     return const Right(
       UserModel(
         id: '1',
-        parentFirstName: 'سارة',
-        parentLastName: 'أحمد',
+        parentName: 'سارة أحمد',
         email: 'test@mail.com',
+        childName: 'يوسف',
+        childAge: 5,
       ),
     );
   }
-   @override
+
+  @override
   Future<Either<Failure, UserModel>> register(
       RegisterRequestModel request) async {
     await Future.delayed(const Duration(seconds: 1));
 
-    // حالة فشل للتجربة: الإيميل ده "مستخدم بالفعل"
+    // حالة فشل للتجربة: الإيميل ده "مستخدم بالفعل" (زي 409 من الباك)
     if (request.email == 'used@mail.com') {
       return const Left(ServerFailure('البريد الإلكتروني مستخدم بالفعل'));
     }
@@ -43,11 +44,22 @@ class FakeAuthRepository implements AuthRepository {
     return Right(
       UserModel(
         id: '2',
-        parentFirstName: request.parentFirstName,
-        parentLastName: request.parentLastName,
+        parentName: request.parentName,
         email: request.email,
+        childName: request.childName,
+        childAge: request.childAge,
       ),
     );
   }
 
+  @override
+  Future<Either<Failure, Unit>> forgotPassword(String email) async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (email == 'unknown@mail.com') {
+      return const Left(ServerFailure('لا يوجد حساب بهذا البريد الإلكتروني'));
+    }
+
+    return const Right(unit);
+  }
 }

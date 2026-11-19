@@ -1,24 +1,26 @@
 class RegisterRequestModel {
   const RegisterRequestModel({
-    required this.parentFirstName,
-    required this.parentLastName,
+    required this.parentName,
     required this.email,
     required this.password,
+    required this.confirmPassword,
     required this.childName,
+    required this.childAge,
   });
 
-  final String parentFirstName;
-  final String parentLastName;
+  final String parentName;
   final String email;
   final String password;
+  final String confirmPassword;
   final String childName;
+  final int childAge;
 
-  // أسماء الحقول (keys) إنجليزي زي ما الباك باعتها
   Map<String, dynamic> toJson() => {
-        'parentFirstName': parentFirstName,
-        'parentLastName': parentLastName,
+        'parentName': parentName,
         'email': email,
         'password': password,
+        'confirmPassword': confirmPassword,
         'childName': childName,
+        'childAge': childAge,
       };
 }

@@ -1,6 +1,4 @@
 import 'package:aman_graduation_broject/core/constant/app_string.dart';
-import 'package:aman_graduation_broject/features/auth/cubit/register/register_cubit.dart';
-import 'package:aman_graduation_broject/features/auth/cubit/register/register_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +7,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../cubit/register/register_cubit.dart';
+import '../cubit/register/register_state.dart';
 import 'widgets/password_field.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -20,19 +20,19 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  final _parentNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   final _childNameController = TextEditingController();
 
+  int? _childAge;
+  bool _ageError = false;
   bool _acceptedTerms = false;
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _parentNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
@@ -41,32 +41,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _onRegister() {
-    if (!_formKey.currentState!.validate()) return;
+    final formValid = _formKey.currentState!.validate();
 
-    // مؤقتاً: لحد ما نربط الـ RegisterCubit
-    //context.go('/fear-selection');
+    // العمر مش جزء من الـ Form، فبنفحصه لوحده
+    if (_childAge == null) {
+      setState(() => _ageError = true);
+    }
+    if (!formValid || _childAge == null) return;
+
     context.read<RegisterCubit>().register(
-      parentFirstName: _firstNameController.text,
-      parentLastName: _lastNameController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-      childName: _childNameController.text,
-    );
+          parentName: _parentNameController.text,
+          email: _emailController.text,
+          password: _passwordController.text,
+          confirmPassword: _confirmController.text,
+          childName: _childNameController.text,
+          childAge: _childAge!,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<RegisterCubit, RegisterState>(
       listener: (context, state) {
-         if (state is RegisterSuccess) {
-        context.go('/fear-selection');
-      }
-      if (state is RegisterError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.message)),
-        );
-      }
-        // TODO: implement listener
+        if (state is RegisterSuccess) {
+          context.go('/fear-selection');
+        }
+        if (state is RegisterError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
       },
       child: Scaffold(
         backgroundColor: AppColors.screenBackground,
@@ -90,7 +94,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // زر الرجوع
                       Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: IconButton(
@@ -103,7 +106,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const _HeaderPlaceholder(),
                       const SizedBox(height: 12),
-
                       const Text(
                         AppStrings.registerTitle,
                         style: TextStyle(
@@ -123,36 +125,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // كارت بيانات ولي الأمر
+                      // بيانات ولي الأمر
                       _SectionCard(
                         title: AppStrings.parentSectionTitle,
                         icon: Icons.person_outline,
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: AppTextField(
-                                  controller: _firstNameController,
-                                  label: AppStrings.parentFirstNameLabel,
-                                  hint: AppStrings.parentFirstNameHint,
-                                  icon: Icons.person_outline,
-                                  textInputAction: TextInputAction.next,
-                                  validator: Validators.name,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: AppTextField(
-                                  controller: _lastNameController,
-                                  label: AppStrings.parentLastNameLabel,
-                                  hint: AppStrings.parentLastNameHint,
-                                  icon: Icons.person_outline,
-                                  textInputAction: TextInputAction.next,
-                                  validator: Validators.name,
-                                ),
-                              ),
-                            ],
+                          AppTextField(
+                            controller: _parentNameController,
+                            label: AppStrings.parentNameLabel,
+                            hint: AppStrings.parentNameHint,
+                            icon: Icons.person_outline,
+                            textInputAction: TextInputAction.next,
+                            validator: Validators.name,
                           ),
                           const SizedBox(height: 12),
                           AppTextField(
@@ -179,14 +163,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             hint: AppStrings.confirmPasswordHint,
                             textInputAction: TextInputAction.next,
                             validator: (v) => Validators.confirmPassword(
-                              _passwordController.text,
-                            )(v),
+                                _passwordController.text)(v),
                           ),
                         ],
                       ),
                       const SizedBox(height: 14),
 
-                      // كارت بيانات الطفل
+                      // بيانات الطفل
                       _SectionCard(
                         title: AppStrings.childSectionTitle,
                         icon: Icons.child_care,
@@ -198,6 +181,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             icon: Icons.person_outline,
                             textInputAction: TextInputAction.done,
                             validator: Validators.name,
+                          ),
+                          const SizedBox(height: 14),
+                          _AgeSelector(
+                            selected: _childAge,
+                            showError: _ageError,
+                            onChanged: (age) => setState(() {
+                              _childAge = age;
+                              _ageError = false;
+                            }),
                           ),
                         ],
                       ),
@@ -225,17 +217,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
 
-                      // الزر معطّل (null) لحد ما الأم توافق
                       BlocBuilder<RegisterCubit, RegisterState>(
-  builder: (context, state) {
-    return AppButton(
-      text: AppStrings.registerButton,
-      icon: Icons.arrow_back,
-      isLoading: state is RegisterLoading,
-      onPressed: _acceptedTerms ? _onRegister : null,
-    );
-  },
-),
+                        builder: (context, state) {
+                          return AppButton(
+                            text: AppStrings.registerButton,
+                            icon: Icons.arrow_back,
+                            isLoading: state is RegisterLoading,
+                            onPressed: _acceptedTerms ? _onRegister : null,
+                          );
+                        },
+                      ),
                       const SizedBox(height: 16),
 
                       Row(
@@ -270,7 +261,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-// كارت أبيض بعنوان فوقه (قسم ولي الأمر / قسم الطفل)
+// ---------- اختيار عمر الطفل (3 إلى 10) ----------
+class _AgeSelector extends StatelessWidget {
+  const _AgeSelector({
+    required this.selected,
+    required this.showError,
+    required this.onChanged,
+  });
+
+  final int? selected;
+  final bool showError;
+  final ValueChanged<int> onChanged;
+
+  static const _ages = [3, 4, 5, 6, 7, 8, 9, 10];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          AppStrings.childAgeLabel,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 2),
+        const Text(
+          AppStrings.childAgeHint,
+          style: TextStyle(fontSize: 12, color: AppColors.textBody),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: _ages.map((age) {
+            final isSelected = selected == age;
+            return GestureDetector(
+              onTap: () => onChanged(age),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.buttonPrimary
+                      : AppColors.fieldBackground,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.buttonPrimary
+                        : AppColors.fieldBorder,
+                  ),
+                ),
+                child: Text(
+                  AppStrings.yearsLabel(age),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : AppColors.textBody,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        if (showError) ...[
+          const SizedBox(height: 6),
+          const Text(
+            AppStrings.childAgeRequired,
+            style: TextStyle(fontSize: 12, color: AppColors.error),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// كارت أبيض بعنوان فوقه
 class _SectionCard extends StatelessWidget {
   const _SectionCard({
     required this.title,
@@ -322,8 +392,6 @@ class _HeaderPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // لما الصورة توصل:
-    // return Image.asset('assets/images/register_header.png', height: 180);
     return Container(
       height: 140,
       width: double.infinity,
