@@ -8,6 +8,7 @@ import '../../../../core/errors/failures.dart';
 
 abstract class AuthRepository {
   /// تسجيل الدخول: بيرجّع المستخدم لو نجح، أو Failure لو فشل
-  Future<Either<Failure, UserModel>> login(LoginRequestModel request);
+  Future<Either<Failure, Unit>> login(LoginRequestModel request);
+  Future<Either<Failure, Unit>> forgotPassword (String email);
   Future<Either<Failure, UserModel>> register(RegisterRequestModel request);
 }
