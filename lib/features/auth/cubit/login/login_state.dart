@@ -22,12 +22,9 @@ class LoginLoading extends LoginState {
 
 // نجح الدخول
 class LoginSuccess extends LoginState {
-  const LoginSuccess(this.user);
+  const LoginSuccess();
 
-  final UserModel user;
-
-  @override
-  List<Object?> get props => [user];
+  
 }
 
 // فشل الدخول: بنحمل رسالة الخطأ
