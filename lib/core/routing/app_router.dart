@@ -1,5 +1,8 @@
+import 'package:aman_graduation_broject/core/di/injection_container.dart';
 import 'package:aman_graduation_broject/features/auth/cubit/login/login_cubit.dart';
 import 'package:aman_graduation_broject/features/auth/cubit/register/register_cubit.dart';
+import 'package:aman_graduation_broject/features/auth/data/data%20sources/auth_local_data_source.dart';
+import 'package:aman_graduation_broject/features/auth/data/repositories/auth_repository.dart';
 import 'package:aman_graduation_broject/features/auth/data/repositories/fake_auth_repositories.dart';
 import 'package:aman_graduation_broject/features/auth/view/register_screen.dart';
 import 'package:aman_graduation_broject/features/splash/cubit/splash-cubit.dart';
@@ -17,7 +20,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       builder: (context, state) => BlocProvider(
-        create: (_) => SplashCubit()..start(),
+        create: (_) => SplashCubit(sl<AuthLocalDataSource>())..start(),
         child: const SplashScreen(),
       ),
     ),
@@ -25,7 +28,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => BlocProvider(
-        create: (_) => LoginCubit(FakeAuthRepository()),
+        create: (_) => LoginCubit(sl<AuthRepository>()),
         child: const LoginScreen(),
       )
     ),
@@ -34,7 +37,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/register',
       builder: (context, state) => BlocProvider(
-        create: (_) => RegisterCubit(FakeAuthRepository()),
+        create: (_) => RegisterCubit(sl<AuthRepository>()),
         child: const RegisterScreen(),
       ),
     ),
