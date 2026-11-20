@@ -1,3 +1,4 @@
+import 'package:aman_graduation_broject/features/auth/data/model/login_request_model.dart';
 import 'package:aman_graduation_broject/features/auth/data/model/register_request_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,9 +34,23 @@ class RegisterCubit extends Cubit<RegisterState> {
 
     if (isClosed) return;
 
-    result.fold(
+    await result.fold(
+      (failure) async => emit(RegisterError(failure.message)),
+      (user)async{
+        final loginResult = await _repository.login(
+      LoginRequestModel(email: email.trim(), password: password),
+    );
+
+    if (isClosed) return;
+
+    loginResult.fold(
+      // الحساب اتعمل بس الدخول فشل: نرسل الرسالة
       (failure) => emit(RegisterError(failure.message)),
-      (user) => emit(RegisterSuccess(user)),
+      (_) => emit(RegisterSuccess(user)),
+    );
+
+        
+      } 
     );
   }
 }
