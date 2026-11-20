@@ -9,7 +9,7 @@ import 'auth_repository.dart';
 
 class FakeAuthRepository implements AuthRepository {
   @override
-  Future<Either<Failure, UserModel>> login(LoginRequestModel request) async {
+  Future<Either<Failure, Unit>> login(LoginRequestModel request) async {
     // نحاكي وقت الاتصال بالباك
     await Future.delayed(const Duration(seconds: 1));
 
@@ -19,15 +19,8 @@ class FakeAuthRepository implements AuthRepository {
     }
 
     // حالة نجاح
-    return const Right(
-      UserModel(
-        id: '1',
-        parentName: 'سارة أحمد',
-        email: 'test@mail.com',
-        childName: 'يوسف',
-        childAge: 5,
-      ),
-    );
+    return const Right(unit);
+    
   }
 
   @override
